@@ -18,11 +18,14 @@
 			void	senderEnd();
 			void	sendMark(irMicrosec_t	t);
 			void	sendSpace(irMicrosec_t	t);
-			//void	sendRaw(irBuferRaw_t &irSeqRaw, int16_t buferLenght);
+			void	sendRaw(irBuferRaw_t &rawBufer, int16_t rawLenght);
 		
 		//*******	RECEIVER	******			
 			void	receiverSetup(uint8_t pin, bool receiverMarkLevel);
-			void	receiverBegin(irBuferRaw_t &irSeqRaw, uint16_t irSeqRawLenght, const irMicrosec_t maxDuration, void (*onReceivedfunc)(irBuferRaw_t&, uint16_t) );															//prepare HW for receining
+			void	receiverBegin(irBuferRaw_t &rawBufer, const int16_t rawBuferLenght, _
+								  const irMicrosec_t maxDuration, _
+								  const void (*onReceivedfunc)(irBuferRaw_t&, uint16_t) );															//prepare HW for receining
+			
 			void	receiverEnd();			
 			void	setOnRecevedCallback((*onReceivedfunc)(irBuferRaw_t&, uint16_t));
 			
@@ -43,14 +46,14 @@
 			volatile uint16_t		_recivedCounter = 0;
 			uint16_t				_buferLenght;
 			irMicrosec_t			_maxDuration;
+			
 			volatile irBuferRaw_t	&_irSeqRaw;
 			
 			volatile uint32_t		_receiverTimer;
-			
-			
+
 	};
 
-	extern  void    callbackOnReceivedIR(irBuferRaw_t buferRaw, uint16_t length);
+	extern  void    callbackOnReceivedIR(irBuferRaw_t &buferRaw, uint16_t length);
 
 	
 #endif

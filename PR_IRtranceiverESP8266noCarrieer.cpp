@@ -1,18 +1,19 @@
 #include "PR_IRtranceiverESP8266noCarrieer.h"
 
-//*******	SENDER	******
+
+//**********************************************************  SENDER	*****************************************
+
 void	PR_IRtranceiverESP8266noCarrier::senderSetup(uint8_t pin, bool senderMarkLevel, irCarriedFreq_t carriedFreq = 0) {
 	_senderPin = pin;
 	_senderMarkLevel = senderMarkLevel;
 }
-
-//**********************************************************  SENDER	*****************************************
 
 void	PR_IRtranceiverESP8266noCarrier::senderBegin()	{
 	receiverEnd();
 	pinMode(_senderPin , OUTPUT);
 	digitalWrite(_senderPin, !senderMarkLevel);
 }															//prepare HW for sending
+
 void	PR_IRtranceiverESP8266noCarrier::senderEnd()	{
 	digitalWrite(_senderPin, !senderMarkLevel);	
 	pinMode(_senderPin, INPUT);
@@ -30,17 +31,17 @@ void inline	PR_IRtranceiverESP8266noCarrier::sendSpace(irMicrosec_t	t) {
 	if (t > 0) os_delay_us(t);
 }
 
-void 	sendRaw(irBuferRaw_t &irSeqRaw, int16_t buferLenght) {
+void 	sendRaw(irBuferRaw_t &rawBufer, int16_t rawLenght) {
 
 	uint16_t n = 0;
-	if ( buferLenght % 2 != 0 ) {	//if seq is not even correct it
-		buferLenght--;	
+	if ( rawLenght % 2 != 0 ) {	//if seq is not even correct it
+		rawLenght--;	
 	}
-	if ( buferLenght <= 2) return;	//we could't send less then Mark+Space				
+	if ( rawLenght < 2) return;	//we could't send less then Mark+Space				
 	do {
-		sendMark (irSeqRaw[n++]);
-		sendSpace(irSeqRaw[n++]);
-	} while (n < buferLenght)
+		sendMark (rawBufer[n++]);
+		sendSpace(rawBufer[n++]);
+	} while (n < rawLenght)
 }
 
 //********************************************* 	RECIVER		*********************************
@@ -71,14 +72,16 @@ uint32_t inline ICACHE_FLASH_ATTR IRtimerElapsed() {
 
 
 
-void	PR_IRtranceiverESP8266noCarrier::receiverBegin(irBuferRaw_t &irSeqRaw, uint16_t irSeqRawLenght, const irMicrosec_t maxDuration, void (*onReceivedfunc)(irBuferRaw_t&, uint16_t))	{
+void	PR_IRtranceiverESP8266noCarrier::receiverBegin( irBuferRaw_t &rawBufer, _const int16_t rawBuferLenght, _ 
+														const irMicrosec_t maxDuration, _
+														const void (*onReceivedfunc)(irBuferRaw_t&, uint16_t) )	{
 	
 	senderEnd();
 	
 	_receivedCounter = 0;
-	_buferLenght	= buferLenght;
+	_buferLenght	= rawBuferLenght;
 	_maxDuration	= maxDuration;
-	_bufer			= bufer;
+	_bufer			= rawBufer;
 	_receiverState	= WAITE;
 	
 	if (onReceivedfunc) setOnRecevedCallback(onReceivedfunc);
